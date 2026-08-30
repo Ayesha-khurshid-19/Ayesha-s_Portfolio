@@ -148,7 +148,7 @@ function initThreeJsCanvas() {
     particleGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
     const particleMat = new THREE.PointsMaterial({
-      size: 0.06,
+      size: 0.11,
       color: 0xE39B86, // Peach Accent
       transparent: true,
       opacity: 0.6
@@ -169,39 +169,79 @@ function initThreeJsCanvas() {
       });
     }
 
-    // Single static render for low-power mobile or full animation loop
-    if (isMobile) {
-      torusKnot.rotation.x = 0.4;
-      torusKnot.rotation.y = 0.6;
-      renderer.render(scene, camera);
+    // // Single static render for low-power mobile or full animation loop
+    // if (isMobile) {
+    //   torusKnot.rotation.x = 0.4;
+    //   torusKnot.rotation.y = 0.6;
+    //   renderer.render(scene, camera);
+    // } else {
+    //   let animationFrameId;
+    //   function animate() {
+    //     animationFrameId = requestAnimationFrame(animate);
+
+    //     targetX += (mouseX - targetX) * 0.05;
+    //     targetY += (mouseY - targetY) * 0.05;
+
+    //     torusKnot.rotation.x += 0.003;
+    //     torusKnot.rotation.y += 0.004;
+
+    //     torusKnot.rotation.y += targetX;
+    //     torusKnot.rotation.x += targetY;
+
+    //     particlesMesh.rotation.y -= 0.001;
+
+    //     renderer.render(scene, camera);
+    //   }
+    //   animate();
+    // }
+
+    // // Resize Handler
+    // window.addEventListener('resize', () => {
+    //   camera.aspect = window.innerWidth / window.innerHeight;
+    //   camera.updateProjectionMatrix();
+    //   renderer.setSize(window.innerWidth, window.innerHeight);
+    //   if (isMobile) renderer.render(scene, camera);
+    // });
+    
+        if (!isMobile) {
+      window.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
+        mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
+      });
     } else {
-      let animationFrameId;
-      function animate() {
-        animationFrameId = requestAnimationFrame(animate);
-
-        targetX += (mouseX - targetX) * 0.05;
-        targetY += (mouseY - targetY) * 0.05;
-
-        torusKnot.rotation.x += 0.003;
-        torusKnot.rotation.y += 0.004;
-
-        torusKnot.rotation.y += targetX;
-        torusKnot.rotation.x += targetY;
-
-        particlesMesh.rotation.y -= 0.001;
-
-        renderer.render(scene, camera);
-      }
-      animate();
+      window.addEventListener('touchmove', (e) => {
+        const t = e.touches[0];
+        if (!t) return;
+        mouseX = (t.clientX - window.innerWidth / 2) * 0.0008;
+        mouseY = (t.clientY - window.innerHeight / 2) * 0.0008;
+      }, { passive: true });
     }
 
-    // Resize Handler
+    let animationFrameId;
+    function animate() {
+      animationFrameId = requestAnimationFrame(animate);
+
+      targetX += (mouseX - targetX) * 0.05;
+      targetY += (mouseY - targetY) * 0.05;
+
+      torusKnot.rotation.x += isMobile ? 0.0015 : 0.003;
+      torusKnot.rotation.y += isMobile ? 0.002 : 0.004;
+
+      torusKnot.rotation.y += targetX;
+      torusKnot.rotation.x += targetY;
+
+      particlesMesh.rotation.y -= 0.001;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-      if (isMobile) renderer.render(scene, camera);
     });
+
   } catch (e) {
     console.log('3D Canvas fallback active:', e);
   }
@@ -958,8 +998,7 @@ function initScrollReveal() {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1 });
-
+  }, { threshold: 0.05, rootMargin: '0px 0px -10% 0px' });
   revealTargets.forEach(target => revealObserver.observe(target));
 }
 
@@ -984,7 +1023,7 @@ function initProject3DTilt() {
           obs.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.08 });
+    }, { threshold: 0.05, rootMargin: '0px 0px -10% 0px' });
 
     observer.observe(projectGrid);
   }
@@ -1017,7 +1056,14 @@ function initSkillPopIn() {
         obs.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.15 });
+  }, { threshold: 0.05, rootMargin: '0px 0px -10% 0px' });
 
   observer.observe(skillsSection);
 }
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.querySelectorAll('.scroll-reveal, .project-card, .skill-category-card')
+      .forEach(el => el.classList.add('revealed'));
+  }, 4000);
+});

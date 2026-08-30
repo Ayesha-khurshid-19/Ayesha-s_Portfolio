@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initStatCounters();
   initProjectFilters();
   initModals();
+  initCertViewer();
   initCaseStudySystem();
   initResumeDownload();
   initCopyButtons();
@@ -394,6 +395,34 @@ function initModals() {
         }
       });
     }
+  });
+}
+
+/* --------------------------------------------------------------------------
+   6b. CERTIFICATE VIEWER MODAL
+   -------------------------------------------------------------------------- */
+function initCertViewer() {
+  const buttons = document.querySelectorAll('.view-cert-btn');
+  const modal = document.getElementById('cert-modal');
+  const body = document.getElementById('cert-modal-body');
+  const openTabLink = document.getElementById('cert-modal-open-tab');
+  if (!modal || !body || !openTabLink) return;
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const certUrl = btn.getAttribute('data-cert');
+      const isImage = /\.(jpg|jpeg|png|webp)$/i.test(certUrl);
+
+      if (isImage) {
+        body.innerHTML = `<img src="${certUrl}" alt="Certificate" style="width:100%; height:100%; object-fit:contain; background:#f5f5f5;">`;
+      } else {
+        body.innerHTML = `<iframe src="${certUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" title="Certificate" style="width:100%; height:100%; border:none;"></iframe>`;
+      }
+
+      openTabLink.href = certUrl;
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    });
   });
 }
 
